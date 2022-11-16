@@ -19,3 +19,7 @@ bin/
 
 # Output directory
 out/
+
+# Fuzzing Test Output
+!testdata/.gitkeep
+testdata/
