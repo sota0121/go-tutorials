@@ -6,3 +6,28 @@ from: https://go.dev/doc/tutorial/fuzz
 
 > In this tutorial, you’ll write a fuzz test for a simple function, run the go command, and debug and fix issues in the code.
 
+## Usage
+
+Execute the following command to run the tutorial:
+
+
+```bash
+make build
+bin/tutorial -feature fuzzing
+
+# or
+
+make run
+```
+
+Execute unit tests
+
+```bash
+make test
+```
+
+Execute fuzzing test
+
+```bash
+make fuzztest
+```
