@@ -10,3 +10,6 @@ from https://go.dev/doc/tutorial/web-service-gin
 - `/albums/{id}`
   - GET – Get an album by its ID, returning the album data as JSON.
 
+## Notes
+
+in this tutorial, we use in-memory data store instead of a database for simplicity.
