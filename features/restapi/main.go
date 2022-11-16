@@ -27,10 +27,23 @@ var (
 	port   = "8080"
 )
 
+// Parameters
+var (
+	// IdParam is the id parameter sent by the client.
+	IdParam = "id"
+	// TitleParam is the title parameter sent by the client.
+	TitleParam = "title"
+	// ArtistParam is the artist parameter sent by the client.
+	ArtistParam = "artist"
+	// PriceParam is the price parameter sent by the client.
+	PriceParam = "price"
+)
+
 // Main is the entrypoint for the restapi package.
 func Main() {
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
+	router.GET("/albums/:id", getAlbumByID)
 	router.POST("/albums", postAlbums)
 	serverURL := fmt.Sprintf("%s:%s", domain, port)
 	router.Run(serverURL)
@@ -60,4 +73,21 @@ func postAlbums(c *gin.Context) {
 	albums = append(albums, newAlbum)
 	c.JSON(http.StatusCreated, newAlbum)
 	// c.IndentedJSON(http.StatusCreated, newAlbum) // this is for debug 'cause pretty print is heavy
+}
+
+// getAlbumByID locates the album whose ID value matches the id
+// parameter sent by the client, then returns that album as a response.
+func getAlbumByID(c *gin.Context) {
+	id := c.Param(IdParam)
+
+	for _, a := range albums {
+		if a.ID == id {
+			c.JSON(http.StatusOK, a)
+			return
+		}
+	}
+
+	// If we didn't find it, abort with an error
+	errMsg := fmt.Sprintf("album not found (%s)", id)
+	c.JSON(http.StatusNotFound, gin.H{"message": errMsg})
 }
