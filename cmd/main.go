@@ -6,6 +6,7 @@ import (
 
 	"github.com/sota0121/go-tutorials/features/fuzzing"
 	"github.com/sota0121/go-tutorials/features/restapi"
+	"github.com/sota0121/go-tutorials/features/webapp"
 )
 
 type feature string
@@ -40,8 +41,7 @@ func main() {
 	case fuzzingFt:
 		fuzzing.Main()
 	case webappFt:
-		// webapp.Main()
-		fmt.Println("webapp is not implemented yet")
+		webapp.Main()
 	default:
 		fmt.Println("feature is not selected")
 	}
