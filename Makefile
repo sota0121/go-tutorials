@@ -33,6 +33,10 @@ test:
 	$(GO_TEST) -v -cover -coverprofile=$(COVER_FILE) ./...
 	$(GO_TOOL) cover -html=$(COVER_FILE) -o $(COVER_HTML)
 
+.PHONY: fuzztest
+fuzztest:
+	$(GO_TEST) -v -fuzz=Fuzz -fuzztime=10s ./features/fuzzing/...
+
 vet:
 	$(GO_VET) ./...
 fmt:
