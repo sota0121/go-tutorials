@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/sota0121/go-tutorials/features/fuzzing"
 	"github.com/sota0121/go-tutorials/features/restapi"
 )
 
@@ -32,14 +33,12 @@ func main() {
 	flag.Parse()
 
 	// Run the feature
-	fmt.Println("this is entrypoint for the some tutorial")
-	fmt.Println("selected feature:", ft.String())
+	fmt.Println(">> selected feature:", ft.String())
 	switch ft {
 	case restapiFt:
 		restapi.Main()
 	case fuzzingFt:
-		// fuzzing.Main()
-		fmt.Println("fuzzing is not implemented yet")
+		fuzzing.Main()
 	case webappFt:
 		// webapp.Main()
 		fmt.Println("webapp is not implemented yet")
