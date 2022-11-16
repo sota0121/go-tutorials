@@ -1,6 +1,7 @@
 package restapi
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,11 +22,17 @@ var albums = []album{
 	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
 }
 
+var (
+	domain = "localhost"
+	port   = "8080"
+)
+
 // Main is the entrypoint for the restapi package.
 func Main() {
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
-	router.Run("localhost:8080")
+	serverURL := fmt.Sprintf("%s:%s", domain, port)
+	router.Run(serverURL)
 }
 
 // getAlbums returns the list of albums as JSON.
