@@ -7,15 +7,24 @@ import (
 )
 
 var (
-	templatesDir         = "features/webapp/templates"
-	viewTemplateFileName = "view.html"
-	editTemplateFileName = "edit.html"
+	templatesDir     = "features/webapp/templates"
+	viewTemplateName = "view"
+	editTemplateName = "edit"
 )
+
+func renderTemplate(w http.ResponseWriter, templroot, templ string, p *Page) {
+	t, err := template.ParseFiles(fmt.Sprintf("%s/%s.html", templroot, templ))
+	if err != nil {
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+	t.Execute(w, p)
+}
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, _ := loadPage(title)
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+	renderTemplate(w, templatesDir, viewTemplateName, p)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,12 +35,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 		p = &Page{Title: title}
 	}
 
-	t, err := template.ParseFiles(fmt.Sprintf("%s/%s", templatesDir, editTemplateFileName))
-	if err != nil {
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-	t.Execute(w, p)
+	renderTemplate(w, templatesDir, editTemplateName, p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {

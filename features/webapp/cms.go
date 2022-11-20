@@ -1,7 +1,12 @@
 package webapp
 
 import (
+	"fmt"
 	"os"
+)
+
+var (
+	contentsDir = "features/webapp/contents"
 )
 
 type Page struct {
@@ -10,13 +15,13 @@ type Page struct {
 }
 
 func (p *Page) save() error {
-	filename := p.Title + ".txt"
-	return os.WriteFile(filename, p.Body, 0600)
+	filepath := fmt.Sprintf("%s/%s.txt", contentsDir, p.Title)
+	return os.WriteFile(filepath, p.Body, 0600)
 }
 
 func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
-	body, err := os.ReadFile(filename)
+	filepath := fmt.Sprintf("%s/%s.txt", contentsDir, title)
+	body, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, err
 	}
