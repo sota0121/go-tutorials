@@ -3,6 +3,13 @@ package webapp
 import (
 	"fmt"
 	"net/http"
+	"text/template"
+)
+
+var (
+	templatesDir         = "features/webapp/templates"
+	viewTemplateFileName = "view.html"
+	editTemplateFileName = "edit.html"
 )
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,12 +26,12 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 		p = &Page{Title: title}
 	}
 
-	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
-		"<form action=\"/save/%s\" method=\"POST\">"+
-		"<textarea name=\"body\">%s</textarea><br>"+
-		"<input type=\"submit\" value=\"Save\">"+
-		"</form>",
-		p.Title, p.Title, p.Body)
+	t, err := template.ParseFiles(fmt.Sprintf("%s/%s", templatesDir, editTemplateFileName))
+	if err != nil {
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+	t.Execute(w, p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
