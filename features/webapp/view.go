@@ -9,18 +9,21 @@ import (
 
 var (
 	// Templates
-	templatesDir     = "features/webapp/templates"
-	homeTemplateName = "home"
-	viewTemplateName = "view"
-	editTemplateName = "edit"
-	templNamePath    = map[string]string{
-		homeTemplateName: getTmplFilePath(templatesDir, homeTemplateName),
-		viewTemplateName: getTmplFilePath(templatesDir, viewTemplateName),
-		editTemplateName: getTmplFilePath(templatesDir, editTemplateName),
+	templatesDir       = "features/webapp/templates"
+	homeTemplateName   = "home"
+	createTemplateName = "create"
+	viewTemplateName   = "view"
+	editTemplateName   = "edit"
+	templNamePath      = map[string]string{
+		homeTemplateName:   getTmplFilePath(templatesDir, homeTemplateName),
+		createTemplateName: getTmplFilePath(templatesDir, createTemplateName),
+		viewTemplateName:   getTmplFilePath(templatesDir, viewTemplateName),
+		editTemplateName:   getTmplFilePath(templatesDir, editTemplateName),
 	}
 	templates = template.Must(
 		template.ParseFiles(
 			templNamePath[homeTemplateName],
+			templNamePath[createTemplateName],
 			templNamePath[viewTemplateName],
 			templNamePath[editTemplateName],
 		),
@@ -89,6 +92,25 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 	renderTemplate(w, viewTemplateName, p)
+}
+
+func createHandler(w http.ResponseWriter, r *http.Request) {
+	// GET: show the form
+	// POST: save the page
+	if r.Method == http.MethodGet {
+		renderTemplate(w, createTemplateName, &Page{Title: "New Page"})
+	} else if r.Method == http.MethodPost {
+		title := r.FormValue("title")
+		body := r.FormValue("body")
+		p := &Page{Title: title, Body: []byte(body)}
+		err := p.save()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request, title string) {
