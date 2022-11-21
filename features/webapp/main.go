@@ -7,6 +7,7 @@ import (
 
 // Main is the entry point of the wiki application.
 func Main() {
+	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))

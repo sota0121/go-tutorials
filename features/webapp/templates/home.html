@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Wiki in Go</title>
+</head>
+<body>
+    <h1>Micro Wiki in Go</h1>
+    <p><a href="#">Create New Page (todo)</a></p>
+    <div id="pages">
+        <h2>Pages</h2>
+        <ul>
+            {{range .}}
+                <li><a href="/view/{{.Title}}">{{.Title}}</a></li>
+            {{end}}
+        </ul>
+    </div>
+</body>
+</html>

@@ -10,14 +10,17 @@ import (
 var (
 	// Templates
 	templatesDir     = "features/webapp/templates"
+	homeTemplateName = "home"
 	viewTemplateName = "view"
 	editTemplateName = "edit"
 	templNamePath    = map[string]string{
+		homeTemplateName: getTmplFilePath(templatesDir, homeTemplateName),
 		viewTemplateName: getTmplFilePath(templatesDir, viewTemplateName),
 		editTemplateName: getTmplFilePath(templatesDir, editTemplateName),
 	}
 	templates = template.Must(
 		template.ParseFiles(
+			templNamePath[homeTemplateName],
 			templNamePath[viewTemplateName],
 			templNamePath[editTemplateName],
 		),
@@ -47,7 +50,7 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	return m[2], nil // The title is the second subexpression.
 }
 
-func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
+func renderTemplate(w http.ResponseWriter, templ string, p interface{}) {
 	err := templates.ExecuteTemplate(w, getTmplFileName(templ), p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,6 +71,15 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 		// call the handler function
 		fn(w, r, title)
 	}
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	pages, err := loadPages()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	renderTemplate(w, homeTemplateName, pages)
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
