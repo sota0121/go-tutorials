@@ -23,3 +23,6 @@ out/
 # Fuzzing Test Output
 !testdata/.gitkeep
 testdata/
+
+# Web App Output
+features/webapp/contents/*.txt
