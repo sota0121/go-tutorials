@@ -3,10 +3,12 @@ package webapp
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"text/template"
 )
 
 var (
+	// Templates
 	templatesDir     = "features/webapp/templates"
 	viewTemplateName = "view"
 	editTemplateName = "edit"
@@ -20,6 +22,9 @@ var (
 			templNamePath[editTemplateName],
 		),
 	)
+
+	// Validations
+	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 )
 
 func getTmplFileName(tmpl string) string {
@@ -30,6 +35,18 @@ func getTmplFilePath(templroot, templ string) string {
 	return fmt.Sprintf("%s/%s", templroot, getTmplFileName(templ))
 }
 
+func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		http.NotFound(w, r)
+		return "", fmt.Errorf("[invalid url] cannot get title from path: %s", r.URL.Path)
+	}
+	// fmt.Println(m[0]) // debug --> /view/test
+	// fmt.Println(m[1]) // debug --> view
+	// fmt.Println(m[2]) // debug --> test
+	return m[2], nil // The title is the second subexpression.
+}
+
 func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
 	err := templates.ExecuteTemplate(w, getTmplFileName(templ), p)
 	if err != nil {
@@ -38,7 +55,11 @@ func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/view/"):]
+	title, err := getTitle(w, r)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	p, err := loadPage(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
@@ -48,7 +69,11 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/edit/"):]
+	title, err := getTitle(w, r)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	p, err := loadPage(title)
 	if err != nil {
 		// if the page does not exist, create a new page
@@ -59,10 +84,14 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/save/"):]
+	title, err := getTitle(w, r)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
-	err := p.save()
+	err = p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
