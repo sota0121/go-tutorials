@@ -54,12 +54,23 @@ func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
 	}
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		fmt.Println(err)
-		return
+// makeHandler is a closure that wraps a function with a common pattern.
+// closure underlies the decorator pattern (well known in Python).
+// this closure function gives the common validations and error handling functionality to the handler functions.
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// common validations and error handling for all handler functions
+		title, err := getTitle(w, r)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		// call the handler function
+		fn(w, r, title)
 	}
+}
+
+func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
@@ -68,12 +79,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, viewTemplateName, p)
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		// if the page does not exist, create a new page
@@ -83,15 +89,10 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, editTemplateName, p)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
-	err = p.save()
+	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
