@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	myctx "github.com/sota0121/go-tutorials/features/context"
 	"github.com/sota0121/go-tutorials/features/fuzzing"
 	"github.com/sota0121/go-tutorials/features/restapi"
 	"github.com/sota0121/go-tutorials/features/webapp"
@@ -24,6 +25,7 @@ const (
 	restapiFt feature = "restapi"
 	fuzzingFt feature = "fuzzing"
 	webappFt  feature = "webapp"
+	contextFt feature = "context"
 )
 
 func main() {
@@ -42,6 +44,8 @@ func main() {
 		fuzzing.Main()
 	case webappFt:
 		webapp.Main()
+	case contextFt:
+		myctx.Main()
 	default:
 		fmt.Println("feature is not selected")
 	}
