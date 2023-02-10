@@ -10,4 +10,4 @@ jobs:
         uses: Slashgear/action-check-pr-title@v4.3.0
         with:
           regexp: "\\[(ID-[0-9]+)\\]" # Regex the title should match
-          helpMessage: "Please provide a title for your PR."
+          helpMessage: "Please provide a title that starts with the Jira issue ID, e.g. [ID-123]"
