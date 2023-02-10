@@ -9,5 +9,5 @@ jobs:
       - name: Check PR Title
         uses: Slashgear/action-check-pr-title@v4.3.0
         with:
-          regexp: "([a-zA-Z0-9])+" # Regex the title should match
+          regexp: "\\[(ID-[0-9]+)\\]" # Regex the title should match
           helpMessage: "Please provide a title for your PR."
