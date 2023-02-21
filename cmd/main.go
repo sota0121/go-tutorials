@@ -6,6 +6,7 @@ import (
 
 	myctx "github.com/sota0121/go-tutorials/features/context"
 	"github.com/sota0121/go-tutorials/features/fuzzing"
+	"github.com/sota0121/go-tutorials/features/ghpra"
 	"github.com/sota0121/go-tutorials/features/restapi"
 	"github.com/sota0121/go-tutorials/features/webapp"
 )
@@ -26,6 +27,7 @@ const (
 	fuzzingFt feature = "fuzzing"
 	webappFt  feature = "webapp"
 	contextFt feature = "context"
+	ghpraFt   feature = "ghpra"
 )
 
 func main() {
@@ -46,6 +48,8 @@ func main() {
 		webapp.Main()
 	case contextFt:
 		myctx.Main()
+	case ghpraFt:
+		ghpra.Main()
 	default:
 		fmt.Println("feature is not selected")
 	}
