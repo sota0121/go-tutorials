@@ -2,8 +2,11 @@ package ghpra
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/joho/godotenv"
@@ -23,6 +26,13 @@ type ConfigElement struct {
 
 type Config struct {
 	Elements []ConfigElement `yaml:"elements"`
+}
+
+type PullRequest struct {
+	Title     string
+	CreatedAt time.Time
+	MergedAt  time.Time
+	Merged    bool
 }
 
 // Main is the entry point of the feature
@@ -85,6 +95,15 @@ func Main() {
 	fmt.Println("Pull Requests of the authenticated user (", len(prs), ") :")
 	for _, pr := range prs {
 		fmt.Println(*pr.Title)
+	}
+
+	// Write to a file
+	outputFilePath := rootDir + "/result.csv"
+	fmt.Println("Writing to a file:", outputFilePath)
+	err = writeResultCSV(outputFilePath, prs)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	// // list all repositories for the authenticated user
@@ -163,4 +182,52 @@ func listRepos(ctx context.Context, client *github.Client) ([]*github.Repository
 		return nil, nil, err
 	}
 	return repos, res, nil
+}
+
+func writeResultCSV(path string, prs []*github.PullRequest) error {
+	var records []*PullRequest
+	for _, pr := range prs {
+		// [Note]
+		// pr.MergedAt is nil if the pull request has not been merged.
+		// And, pr.Merged is always nil. This is probably a bug.
+		// We need to check pr.MergedAt is nil or not.
+		mergedAt := time.Time{}
+		merged := false
+		if pr.MergedAt != nil {
+			mergedAt = *pr.MergedAt
+			merged = true
+		}
+
+		record := &PullRequest{
+			Title:     *pr.Title,
+			CreatedAt: *pr.CreatedAt,
+			MergedAt:  mergedAt,
+			Merged:    merged,
+		}
+
+		records = append(records, record)
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for _, record := range records {
+		err := writer.Write([]string{
+			record.Title,
+			record.CreatedAt.String(),
+			record.MergedAt.String(),
+			strconv.FormatBool(record.Merged),
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
