@@ -9,10 +9,24 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
+            "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/cmd/main.go",
             "args": [
                 "-feature",
                 "fuzzing",
+            ],
+        },
+        {
+            "name": "Launch Debugging ghpra Feature ",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/cmd/main.go",
+            "args": [
+                "-feature",
+                "ghpra",
             ],
         }
     ]
