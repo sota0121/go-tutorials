@@ -1,0 +1,4 @@
+elements:
+  - source_owner: moneyforward
+    source_repo: mfx_id
+    base_branch: develop

@@ -8,21 +8,50 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	rootDir     = "features/ghpra"
-	sourceOwner = "moneyforward"
-	sourceRepo  = "mfx_id"
-	baseBranch  = "develop"
+	rootDir = "features/ghpra"
 )
+
+type ConfigElement struct {
+	SourceOwner string `yaml:"source_owner"`
+	SourceRepo  string `yaml:"source_repo"`
+	BaseBranch  string `yaml:"base_branch"`
+}
+
+type Config struct {
+	Elements []ConfigElement `yaml:"elements"`
+}
 
 // Main is the entry point of the feature
 func Main() {
-	fmt.Println("Let's go to GitHub Pull Request Aggregator!")
+	fmt.Println(">> Start GitHub Pull Request Aggregation!")
+	// Load config file
+	config, err := loadConfig(rootDir + "/config.yml")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Let the user select the config
+	fmt.Println("Select the config:")
+	for i, element := range config.Elements {
+		fmt.Println(i, ":", element.SourceOwner, "/", element.SourceRepo, ":", element.BaseBranch)
+	}
+	var selected int
+	fmt.Scan(&selected)
+	if selected < 0 || selected >= len(config.Elements) {
+		fmt.Println("Invalid selection")
+		return
+	}
+	sourceOwner := config.Elements[selected].SourceOwner
+	sourceRepo := config.Elements[selected].SourceRepo
+	baseBranch := config.Elements[selected].BaseBranch
 
 	// Load .env file
-	err := godotenv.Load(rootDir + "/.env")
+	err = godotenv.Load(rootDir + "/.env")
 	if err != nil {
 		fmt.Println("Error loading .env file")
 		return
@@ -48,7 +77,7 @@ func Main() {
 	fmt.Println("Authenticated user:", *user.Login)
 
 	// list recent pull requests for the authenticated user
-	prs, _, err := listClosedPullRequestsByClient(ctx, client, sourceOwner, sourceRepo, *user.Login)
+	prs, _, err := listClosedPullRequestsByClient(ctx, client, sourceOwner, sourceRepo, baseBranch, *user.Login)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -71,7 +100,24 @@ func Main() {
 	// }
 }
 
-func listClosedPullRequestsByClient(ctx context.Context, client *github.Client, owner, repo, username string) ([]*github.PullRequest, *github.Response, error) {
+func loadConfig(path string) (*Config, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var config Config
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(&config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
+func listClosedPullRequestsByClient(ctx context.Context, client *github.Client, owner, repo, baseBranch, username string) ([]*github.PullRequest, *github.Response, error) {
 	// Create PullRequestListOptions
 	// https://godoc.org/github.com/google/go-github/github#PullRequestListOptions
 	opt := &github.PullRequestListOptions{
