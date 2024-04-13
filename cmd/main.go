@@ -11,46 +11,80 @@ import (
 	"github.com/sota0121/go-tutorials/features/webapp"
 )
 
-type feature string
+type feature struct {
+	Name string
+	Desc string
+	Run  func()
+}
 
-func (f feature) String() string {
-	return string(f)
+var features = map[string]*feature{}
+
+const (
+	restapiFt string = "restapi"
+	fuzzingFt string = "fuzzing"
+	webappFt  string = "webapp"
+	contextFt string = "context"
+	ghpraFt   string = "ghpra"
+)
+
+func init() {
+	RegisterFeature(restapiFt, restapi.Main, "simple rest api")
+	RegisterFeature(fuzzingFt, fuzzing.Main, "fuzzing sample")
+	RegisterFeature(webappFt, webapp.Main, "simple web app")
+	RegisterFeature(contextFt, myctx.Main, "sample context package usage")
+	RegisterFeature(ghpraFt, ghpra.Main, "sample github pull request aggregator")
+}
+
+func RegisterFeature(name string, run func(), desc string) {
+	features[name] = &feature{
+		Name: name,
+		Run:  run,
+		Desc: desc,
+	}
+}
+
+func (f *feature) String() string {
+	return string(f.Name)
 }
 
 func (f *feature) Set(value string) error {
-	*f = feature(value)
+	target, ok := features[value]
+	if !ok {
+		return fmt.Errorf("invalid feature: %s", value)
+	}
+	*f = *target
 	return nil
 }
 
-const (
-	restapiFt feature = "restapi"
-	fuzzingFt feature = "fuzzing"
-	webappFt  feature = "webapp"
-	contextFt feature = "context"
-	ghpraFt   feature = "ghpra"
-)
+func ListFeatureNamesInOneLine() string {
+	var names string
+	for name := range features {
+		names += name + ","
+	}
+	return names
+}
+
+func PrintFeatures(fts map[string]*feature) {
+	for name, ft := range fts {
+		fmt.Printf("%s: %s\n", name, ft.Desc)
+	}
+}
 
 func main() {
 	// Command Line Arguments Parsing
 	var ft feature
-	ftUsage := fmt.Sprintf("feature to run (options: %s, %s, %s)", restapiFt, fuzzingFt, webappFt)
+	ftUsage := fmt.Sprintf("feature to run (-feature -help to show help)")
 	flag.Var(&ft, "feature", ftUsage)
+	flag.Bool("help", false, "show help")
 	flag.Parse()
+
+	// Show help
+	if flag.Lookup("help").Value.String() == "true" {
+		PrintFeatures(features)
+		return
+	}
 
 	// Run the feature
 	fmt.Println(">> selected feature:", ft.String())
-	switch ft {
-	case restapiFt:
-		restapi.Main()
-	case fuzzingFt:
-		fuzzing.Main()
-	case webappFt:
-		webapp.Main()
-	case contextFt:
-		myctx.Main()
-	case ghpraFt:
-		ghpra.Main()
-	default:
-		fmt.Println("feature is not selected")
-	}
+	ft.Run()
 }
