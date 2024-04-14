@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/sota0121/go-tutorials/features/nw"
 
 	myctx "github.com/sota0121/go-tutorials/features/context"
 	"github.com/sota0121/go-tutorials/features/fuzzing"
@@ -25,6 +26,7 @@ const (
 	webappFt  string = "webapp"
 	contextFt string = "context"
 	ghpraFt   string = "ghpra"
+	nwFt      string = "nw"
 )
 
 func init() {
@@ -33,6 +35,7 @@ func init() {
 	RegisterFeature(webappFt, webapp.Main, "simple web app")
 	RegisterFeature(contextFt, myctx.Main, "sample context package usage")
 	RegisterFeature(ghpraFt, ghpra.Main, "sample github pull request aggregator")
+	RegisterFeature(nwFt, nw.Main, "sample network communication")
 }
 
 func RegisterFeature(name string, run func(), desc string) {
