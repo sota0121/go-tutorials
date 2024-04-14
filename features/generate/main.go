@@ -1,0 +1,1 @@
+// go:genrate go run features/generate/main.go
